@@ -20,7 +20,7 @@ export const getUsersForSidebar = async (req, res) => {
             }
         })
         await Promise.all(promises);
-        req.json({
+        res.json({
             status: true,
             users: filteredUsers,
             unseenMessages
@@ -96,7 +96,7 @@ export const sendMessage = async (req, res) => {
             const uploadResponse = await cloudinary.uploader.upload(image)
             imageUrl = uploadResponse.secure_url;
         }
-        const newMessage = new Message.create({
+        const newMessage = await Message.create({
             text,
             image: imageUrl,
             senderId,

@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 
+
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
 
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
         try {
             const { data } = await axios.get("/api/auth/check");
-            if (data.success) {
+            if (data.status) {
                 setAuthUser(data.user);
                 connectSocket(data.user);
             }
