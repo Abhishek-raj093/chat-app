@@ -1,17 +1,33 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import assets from '../assets/assets';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 
 const ProfilePage = () => {
 
-  const [selectedImg, setSelectedIimg] = useState(null)
+  const {authUser, updateProfile} = useContext(AuthContext)
+
+  const [selectedImg, setSelectedImg] = useState(null);
   const navigate = useNavigate();
-  const [name, setName] = useState("Abhishek Raj")
-  const [bio, setBio] = useState("Hi Everyone, I am Using QuickChat.")
+  const [name, setName] = useState(authUser.fullName)
+  const [bio, setBio] = useState(authUser.bio)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/')
+    if (!selectedImg) {
+    await updateProfile({fullName: name, bio});
+    navigate('/');
+    return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedImg);
+    reader.onload = async ()=>{
+      const base64Image = reader.result;
+      await updateProfile({profilePic: base64Image, fullName: name, bio})
+      navigate('/')
+    }
   }
 
   return (
@@ -20,7 +36,7 @@ const ProfilePage = () => {
         <form onSubmit={handleSubmit} className='flex flex-col gap-5 p-10 flex-1'>
           <h3 className='text-lg'>Profile details</h3>
           <label htmlFor="avatar" className='flex items-center gap-3 cursor-pointer'>
-            <input onChange={(e)=>setSelectedIimg(e.target.files[0])} type="file" id='avatar' accept='.png, .jpg, .jpeg' hidden />
+            <input onChange={(e)=>setSelectedImg(e.target.files[0])} type="file" id='avatar' accept='.png, .jpg, .jpeg' hidden />
             <img src={selectedImg ? URL.createObjectURL(selectedImg) : assets.avatar_icon} alt="" className={`w-12 h-12 ${selectedImg && 'rounded-full'}`} />
             upload profile image
           </label>
@@ -32,7 +48,7 @@ const ProfilePage = () => {
           <button type='submit' className='bg-gradient-to-r from-purple-400 to-violet-600 text-white p-2 rounded-full text-lg cursor-pointer'>Save</button>
 
         </form>
-        <img className='max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10' src={assets.logo_icon} alt="" />
+        <img className={`max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10 ${selectedImg && 'rounded-full'}`} src={authUser?.profilePic || assets.logo_icon} alt="" />
       </div>
     </div>
   )

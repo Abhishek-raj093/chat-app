@@ -5,14 +5,14 @@ import cloudinary from '../lib/cloudinary.js';
 
 // Signup a new user
 export const signup = async (req, res) => {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, bio } = req.body;
 
     try {
         if (!fullName || !email || !password || !bio) {
             return res.json({
                 status: false, message: "Missing Details"})
         }
-        const user = await User.findOnw({ email });
+        const user = await User.findOne({ email });
         if (user) {
             return res.json({
                 status: false, message: "User already exists"})
@@ -53,7 +53,7 @@ export const login = async (req, res) => {
             });
         }
 
-        const token = generateToken(newData._id);
+        const token = generateToken(userData._id);
 
         res.json({success: true, userData, token, message: "Login successfully"});
 
